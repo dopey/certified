@@ -27,6 +27,7 @@ set -e
 
 SAN_DNS=""
 SAN_IP=""
+SAN_OID=""
 while [ "$#" -gt 0 ]
 do
     case "$1" in
@@ -60,7 +61,9 @@ do
         ST=*) ST="$(echo "$1" | cut -d"=" -f"2-")" shift;;
         +*)
             SAN="$(echo "$1" | cut -c"2-")" shift
-            if is_ip "$SAN"
+            if is_oid "$SAN"
+            then SAN_OID="$SAN_OID $SAN"
+            elif is_ip "$SAN"
             then SAN_IP="$SAN_IP $SAN"
             elif is_dns "$SAN"
             then SAN_DNS="$SAN_DNS $SAN"
@@ -142,12 +145,18 @@ default_md = sha256
 distinguished_name = dn
 prompt = no
 EOF
-    if [ "$SAN_DNS" -o "$SAN_IP" ]
+    if [ "$SAN_DNS" -o "$SAN_IP" -o "$SAN_OID" ]
     then cat <<EOF
 
 [san]
 EOF
     fi
+    I=1
+    for OID in $SAN_OID
+    do
+        echo "OID.$I = $OID"
+        I=$(($I + 1))
+    done
     I=1
     for DNS in $SAN_DNS
     do

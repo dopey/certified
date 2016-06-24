@@ -35,6 +35,20 @@ if_echo() {
     fi
 }
 
+# Return zero if the first argument is prefaced by `oid:`.
+# Return non-zero otherwise.
+is_oid() {
+    SEARCH="oid:"
+    PREFIX="$(echo "$1" | cut -c-${#SEARCH})"
+
+    if [ "$PREFIX" = "$SEARCH" ]
+    then
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Return zero if the first argument looks like a DNS name, including wildcards
 # and single labels.  Return non-zero otherwise.
 is_dns() {
