@@ -27,6 +27,7 @@ set -e
 
 SAN_DNS=""
 SAN_IP=""
+SAN_RID=""
 while [ "$#" -gt 0 ]
 do
     case "$1" in
@@ -60,7 +61,9 @@ do
         ST=*) ST="$(echo "$1" | cut -d"=" -f"2-")" shift;;
         +*)
             SAN="$(echo "$1" | cut -c"2-")" shift
-            if is_ip "$SAN"
+            if is_rid "$SAN"
+            then SAN_RID="$SAN_RID $SAN"
+            elif is_ip "$SAN"
             then SAN_IP="$SAN_IP $SAN"
             elif is_dns "$SAN"
             then SAN_DNS="$SAN_DNS $SAN"
@@ -142,7 +145,7 @@ default_md = sha256
 distinguished_name = dn
 prompt = no
 EOF
-    if [ "$SAN_DNS" -o "$SAN_IP" ]
+    if [ "$SAN_DNS" -o "$SAN_IP" -o "$SAN_RID" ]
     then cat <<EOF
 
 [san]
@@ -158,6 +161,12 @@ EOF
     for IP in $SAN_IP
     do
         echo "IP.$I = $IP"
+        I=$(($I + 1))
+    done
+    I=1
+    for RID in $SAN_RID
+    do
+        echo "RID.$I = $(echo "$RID" | cut -f2 -d":")"
         I=$(($I + 1))
     done
     cat <<EOF
@@ -176,7 +185,7 @@ EOF
     then echo "keyUsage = critical, cRLSign, keyCertSign, nonRepudiation"
     else echo "keyUsage = critical, digitalSignature, keyEncipherment"
     fi
-    if [ "$SAN_DNS" -o "$SAN_IP" ]
+    if [ "$SAN_DNS" -o "$SAN_IP" -o "$SAN_RID" ]
     then echo "subjectAltName = @san"
     fi
     echo "subjectKeyIdentifier = hash"

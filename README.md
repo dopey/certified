@@ -53,6 +53,12 @@ Generate a certificate for an IP address:
 certified CN="localhost" +"127.0.0.1"
 ```
 
+Generate a certificate for an RID (registered object identifier) address:
+
+```sh
+certified CN="localhost" +"rid:1.2.3.4.5.6"
+```
+
 [Install your certificates](https://github.com/rcrowley/certified/wiki/Install-your-certificates) on all your servers.
 
 The [wiki](https://github.com/rcrowley/certified/wiki) further documents common usage patterns and how to use your CA with various browsers, operating systems, and programming languages.

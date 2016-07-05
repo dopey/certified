@@ -54,6 +54,20 @@ is_ip() {
     echo "$1" | grep -E -q "([0-9]|[0-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]).([0-9]|[0-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]).([0-9]|[0-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]).([0-9]|[0-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])"
 }
 
+# Return zero if the first argument is prefixed by `rid:`.
+# Return non-zero otherwise.
+is_rid() {
+    SEARCH="rid:"
+    PREFIX="$(echo "$1" | cut -c-${#SEARCH})"
+
+    if [ "$PREFIX" = "$SEARCH" ]
+    then
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Log a message to stderr, in bold and prefixed with "certified: ".
 log() {
     echo "$(tput "bold")$(basename "$0"): $*$(tput "sgr0")" >&2
